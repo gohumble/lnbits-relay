@@ -1,0 +1,5 @@
+lnbits_url: "https://lnbits.com/" # onion here
+lnbits_admin_key: ""
+lnbits_admin_id: ""
+donee_id: ""
+host: "0.0.0.0:8081" # domain name here

@@ -1,0 +1,48 @@
+version: "3.7"
+services:
+  relay:
+    container_name: "relay"
+    build:
+      context: .
+      dockerfile: docker/go/Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.relay.rule=Host(`relay.localhost`)"
+      - "traefik.http.services.relay.loadbalancer.server.port=8081"
+      - "traefik.http.routers.relay.entrypoints=web"
+      #- "traefik.http.routers.relay.entrypoints=websecure"
+      - "traefik.http.routers.relay.service=relay"
+    networks:
+      service_network:
+  tor-proxy:
+    container_name: "tor"
+    restart: on-failure
+    image: dperson/torproxy
+    networks:
+      service_network:
+  traefik:
+    image: "traefik:v2.4"
+    container_name: "traefik"
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.address=:80"
+      #- "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      #- "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=postmaster@domain.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      service_network:
+networks:
+  service_network:
