@@ -35,8 +35,8 @@ func (c *Client) GetUser(userId string) (user User, err error) {
 }
 
 // Invoice creates an invoice associated with this wallet.
-func (c Client) Invoice(params InvoiceParams, w Wallet) (lntx Invoice, err error) {
-	resp, err := req.Post(c.url+"/api/v1/payments", w.header, req.BodyJSON(&params))
+func (c Client) Invoice(params InvoiceParams) (lntx Invoice, err error) {
+	resp, err := req.Post(c.url+"/api/v1/payments", c.header, req.BodyJSON(&params))
 	if err != nil {
 		return
 	}
